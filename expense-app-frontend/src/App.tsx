@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import ExpenseForm from './components/ExpenseForm';
 
 type Expense = {
   id: number;
@@ -35,6 +37,8 @@ function App() {
     queryFn: getAllExpenses,
   });
 
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+
   return (
     <div className="w-screen h-screen bg-white dark:bg-black text-black dark:text-white">
       {totalAmountQuery.error ? (
@@ -62,6 +66,11 @@ function App() {
         </div>
       )}
       <div className="line"></div>
+      <ExpenseForm
+        onAddExpense={(newExpense) => {
+          setExpenses([...expenses, newExpense]);
+        }}
+      />
     </div>
   );
 }
