@@ -55,6 +55,10 @@ function App() {
       <div className="line"></div>
       {expensesQuery.error ? (
         <div>{expensesQuery.error.message}</div>
+      ) : expensesQuery.isPending ? (
+        <div className="flex flex-col max-w-96 m-auto animate-pulse">
+          Expenses ...
+        </div>
       ) : (
         <div>
           <h2 className="text-center">Expenses:</h2>

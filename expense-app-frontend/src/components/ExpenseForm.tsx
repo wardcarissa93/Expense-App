@@ -30,38 +30,42 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
     return (
         <div>
             <h2 className="text-center">Add New Expense:</h2>
-            <div>
-                <label htmlFor="title">Title:</label>
-                <input 
-                    type="text" 
-                    value={title} 
-                    name="title" 
-                    id="title" 
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-            </div>
-            <div>
-                <label htmlFor="amount">Amount:</label>
-                <input 
-                    type="number"
-                    min="0"
-                    value={amount}
-                    name="amount"
-                    id="amount"
-                    onChange={(e) => setAmount(e.target.value)} 
-                />
-            </div>
-            <div>
-                <label htmlFor="date">Date:</label>
-                <input 
-                    type="date"
-                    value={date}
-                    name="date"
-                    id="date"
-                    onChange={(e) => setDate(e.target.value)} 
-                />
-            </div>
-            <button onClick={handleAddExpense}>Add Expense</button>
+            <form>
+                <div>
+                    <label htmlFor="title">Title:</label>
+                    <input 
+                        type="text" 
+                        value={title} 
+                        name="title" 
+                        id="title" 
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="form-input"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="amount">Amount:</label>
+                    <input 
+                        type="number"
+                        min="0"
+                        value={amount}
+                        name="amount"
+                        id="amount"
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="form-input" 
+                    />
+                </div>
+                <div>
+                    <label htmlFor="date">Date:</label>
+                    <input 
+                        type="date"
+                        value={date}
+                        name="date"
+                        id="date"
+                        onChange={(e) => setDate(e.target.value)} 
+                    />
+                </div>
+                <button onClick={handleAddExpense} className="form-button">Add Expense</button>
+            </form>
         </div>
     );
 };
