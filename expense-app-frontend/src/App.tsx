@@ -1,12 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import './App.css';
-import ExpenseForm from './components/ExpenseForm';
 
 type Expense = {
   id: number;
   title: string;
-  amount: number;
+  amount: string;
   date: string;
 };
 
@@ -15,20 +14,20 @@ type ExpensesQueryData = {
 };
 
 async function getTotalExpenses() {
-  const res = await fetch("/api/expenses/total-amount");
+  const res = await fetch('/api/expenses/total-amount');
   const json = await res.json();
   return json;
 }
 
 async function getAllExpenses() {
-  const res = await fetch("/api/expenses");
+  const res = await fetch('/api/expenses');
   const json: ExpensesQueryData = await res.json();
   return json;
 }
 
 function App() {
   const totalAmountQuery = useQuery({
-    queryKey: ["total-amount"],
+    queryKey: ['total-amount'],
     queryFn: getTotalExpenses,
   });
 
@@ -37,7 +36,27 @@ function App() {
     queryFn: getAllExpenses,
   });
 
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [newExpense, setNewExpense] = useState({
+    title: '',
+    amount: '',
+    date: '',
+  });
+
+  const [submissionMessage, setSubmissionMessage] = useState<string>('');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (name === 'amount' && isNaN(parseFloat(value))) {
+      // If the entered value is not a valid number, don't update the state
+      return;
+    }
+
+    setNewExpense((prevExpense) => ({
+      ...prevExpense,
+      [name]: name === 'amount' ? value : value,
+    }));
+  };
 
   return (
     <div className="w-screen h-screen bg-white dark:bg-black text-black dark:text-white">
@@ -45,7 +64,7 @@ function App() {
         <div>{totalAmountQuery.error.message}</div>
       ) : totalAmountQuery.isPending ? (
         <div className="flex flex-col max-w-96 m-auto animate-pulse">
-          Total Spent ...
+          Loading Total Spent ...
         </div>
       ) : (
         <div className="flex flex-col max-w-96 m-auto">
@@ -57,24 +76,93 @@ function App() {
         <div>{expensesQuery.error.message}</div>
       ) : expensesQuery.isPending ? (
         <div className="flex flex-col max-w-96 m-auto animate-pulse">
-          Expenses ...
+          Loading Expenses ...
         </div>
       ) : (
         <div>
           <h2 className="text-center">Expenses:</h2>
           {expensesQuery.data?.expenses.map((expense) => (
-            <div key={expense.id}>
-              {expense.title}: ${expense.amount.toFixed(2)}
+            <div key={expense.id} className="expense-item">
+              <div>{expense.title}:</div>
+              <div>${parseFloat(expense.amount).toFixed(2)}</div>
             </div>
           ))}
         </div>
       )}
       <div className="line"></div>
-      <ExpenseForm
-        onAddExpense={(newExpense) => {
-          setExpenses([...expenses, newExpense]);
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setSubmissionMessage('Submitting expense...'); // Display submission message
+
+          try {
+            await fetch('/api/expenses', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                ...newExpense,
+                amount: parseFloat(newExpense.amount),
+              }),
+            });
+
+            // Wait for the queries to complete
+            await Promise.all([
+              totalAmountQuery.refetch(),
+              expensesQuery.refetch(),
+            ]);
+
+            // Clear form fields
+            setNewExpense({ title: '', amount: '', date: '' });
+
+            // Set success message
+            setSubmissionMessage('Expense Submitted!');
+
+            // Clear success message after 3000 milliseconds
+            setTimeout(() => {
+              setSubmissionMessage('');
+            }, 3000);
+          } catch (error) {
+            // Display error message
+            setSubmissionMessage(`Error: ${error.message}`);
+          }
         }}
-      />
+      >
+        <div>
+          <label htmlFor="title">Title:</label>
+          <input
+            type="text"
+            name="title"
+            id="title"
+            onChange={handleInputChange}
+            className="form-input"
+          />
+        </div>
+        <div>
+          <label htmlFor="amount">Amount:</label>
+          <input
+            type="text"  
+            name="amount"
+            id="amount"
+            onChange={handleInputChange}
+            className='form-input'   />
+        </div>
+        <div>
+          <label htmlFor="date">Date:</label>
+          <input
+            type="date"
+            name="date"
+            id="date"
+            onChange={handleInputChange}
+            className='form-input'
+          />
+        </div>
+        <button type="submit" className="form-button">
+          Add Expense
+        </button>
+        {submissionMessage && <p>{submissionMessage}</p>}
+      </form>
     </div>
   );
 }
