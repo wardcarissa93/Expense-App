@@ -81,12 +81,14 @@ function App() {
       ) : (
         <div>
           <h2 className="text-center">Expenses:</h2>
-          {expensesQuery.data?.expenses.map((expense) => (
-            <div key={expense.id} className="expense-item">
-              <div>{expense.title}:</div>
-              <div>${parseFloat(expense.amount).toFixed(2)}</div>
-            </div>
-          ))}
+          {expensesQuery.data?.expenses.slice()
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .map((expense) => (
+              <div key={expense.id} className="expense-item">
+                <div>{expense.date} - {expense.title}:</div>
+                <div>${parseFloat(expense.amount).toFixed(2)}</div>
+              </div>
+            ))}
         </div>
       )}
       <div className="line"></div>
@@ -96,6 +98,13 @@ function App() {
           setSubmissionMessage('Submitting expense...'); // Display submission message
 
           try {
+            const amountValue = parseFloat(newExpense.amount);
+
+            // Check if 'amount' is a valid number before submitting
+            if (isNaN(amountValue)) {
+              setSubmissionMessage('Error: Please enter a valid amount.');
+              return;
+            }
             await fetch('/api/expenses', {
               method: 'POST',
               headers: {
@@ -146,7 +155,8 @@ function App() {
             name="amount"
             id="amount"
             onChange={handleInputChange}
-            className='form-input'   />
+            className='form-input'
+          />
         </div>
         <div>
           <label htmlFor="date">Date:</label>

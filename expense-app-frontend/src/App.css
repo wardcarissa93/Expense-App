@@ -14,7 +14,7 @@
 
 .expense-item {
   display: flex;
-  width: 50%;
+  width: 40%;
   justify-content: space-between;
   margin: 0 auto;
 }
