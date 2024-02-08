@@ -6,7 +6,7 @@ type Expense = {
   id: number;
   title: string;
   amount: string;
-  date: string;
+  date: Date;
 };
 
 type ExpensesQueryData = {
@@ -39,7 +39,7 @@ function App() {
   const [newExpense, setNewExpense] = useState({
     title: '',
     amount: '',
-    date: '',
+    date: new Date(),
   });
 
   const [submissionMessage, setSubmissionMessage] = useState<string>('');
@@ -101,7 +101,7 @@ function App() {
       ]);
 
       // Clear form fields directly
-      setNewExpense({ title: '', amount: '', date: '' });
+      setNewExpense({ title: '', amount: '', date: new Date() });
 
       // Set success message
       setSubmissionMessage('Expense Submitted!');
@@ -148,11 +148,12 @@ function App() {
       ) : (
         <div>
           <h2 className="text-center">Expenses:</h2>
-          {expensesQuery.data?.expenses.slice()
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .map((expense) => (
+          {expensesQuery.data?.expenses
+            .slice() // Access the 'expenses' array directly
+            .sort((a: Expense, b: Expense) => new Date(b.date).getTime() - new Date(a.date).getTime()) // Add type annotations
+            .map((expense: Expense) => ( // Add type annotation
               <div key={expense.id} className="expense-item">
-                <div>{expense.date} - {expense.title}:</div>
+                <div>{new Date(expense.date).toLocaleDateString("en-US")} - {expense.title}:</div>
                 <div>${parseFloat(expense.amount).toFixed(2)}</div>
               </div>
             ))}
@@ -188,7 +189,7 @@ function App() {
             type="date"
             name="date"
             id="date"
-            value={newExpense.date}
+            value={newExpense.date.toISOString().split('T')[0]} // Convert Date to string
             onChange={handleInputChange}
             className='form-input'
           />
