@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import './App.css';
 
@@ -58,6 +58,67 @@ function App() {
     }));
   };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmissionMessage('Submitting expense...'); // Display submission message
+
+    // Check if the date is selected
+    if (!newExpense.date) {
+      setSubmissionMessage('Error: Please select a date.');
+      return;
+    }
+
+    try {
+      const amountValue = parseFloat(newExpense.amount);
+
+      // Check if 'amount' is a valid number before submitting
+      if (isNaN(amountValue)) {
+        setSubmissionMessage('Error: Please enter a valid amount.');
+        return;
+      }
+
+      await fetch('/api/expenses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...newExpense,
+          amount: parseFloat(newExpense.amount),
+        }),
+      });
+
+      // Wait for the queries to complete
+      await Promise.all([
+        totalAmountQuery.refetch(),
+        expensesQuery.refetch(),
+      ]);
+
+      // Clear form fields directly
+      setNewExpense({ title: '', amount: '', date: '' });
+
+      // Set success message
+      setSubmissionMessage('Expense Submitted!');
+
+    } catch (error) {
+      // Display error message
+      setSubmissionMessage(`Error: ${error.message}`);
+    }
+  };
+
+  useEffect(() => {
+    // Clear form fields when submission is successful
+    if (submissionMessage === 'Expense Submitted!') {
+      // Clear success message after 3000 milliseconds
+      const timeoutId = setTimeout(() => {
+        setSubmissionMessage('');
+      }, 3000);
+
+      // Clear the timeout to prevent memory leaks
+      return () => clearTimeout(timeoutId);
+    }
+  }, [submissionMessage]);
+
   return (
     <div className="w-screen h-screen bg-white dark:bg-black text-black dark:text-white">
       {totalAmountQuery.error ? (
@@ -92,58 +153,14 @@ function App() {
         </div>
       )}
       <div className="line"></div>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setSubmissionMessage('Submitting expense...'); // Display submission message
-
-          try {
-            const amountValue = parseFloat(newExpense.amount);
-
-            // Check if 'amount' is a valid number before submitting
-            if (isNaN(amountValue)) {
-              setSubmissionMessage('Error: Please enter a valid amount.');
-              return;
-            }
-            await fetch('/api/expenses', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                ...newExpense,
-                amount: parseFloat(newExpense.amount),
-              }),
-            });
-
-            // Wait for the queries to complete
-            await Promise.all([
-              totalAmountQuery.refetch(),
-              expensesQuery.refetch(),
-            ]);
-
-            // Clear form fields
-            setNewExpense({ title: '', amount: '', date: '' });
-
-            // Set success message
-            setSubmissionMessage('Expense Submitted!');
-
-            // Clear success message after 3000 milliseconds
-            setTimeout(() => {
-              setSubmissionMessage('');
-            }, 3000);
-          } catch (error) {
-            // Display error message
-            setSubmissionMessage(`Error: ${error.message}`);
-          }
-        }}
-      >
+      <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="title">Title:</label>
           <input
             type="text"
             name="title"
             id="title"
+            value={newExpense.title}
             onChange={handleInputChange}
             className="form-input"
           />
@@ -154,6 +171,7 @@ function App() {
             type="text"  
             name="amount"
             id="amount"
+            value={newExpense.amount}
             onChange={handleInputChange}
             className='form-input'
           />
@@ -164,6 +182,7 @@ function App() {
             type="date"
             name="date"
             id="date"
+            value={newExpense.date}
             onChange={handleInputChange}
             className='form-input'
           />
