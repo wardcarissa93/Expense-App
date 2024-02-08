@@ -62,6 +62,12 @@ function App() {
     e.preventDefault();
     setSubmissionMessage('Submitting expense...'); // Display submission message
 
+    // Check if the title is entered
+    if (!newExpense.title) {
+      setSubmissionMessage('Error: Please enter a title.');
+      return;
+    }
+
     // Check if the date is selected
     if (!newExpense.date) {
       setSubmissionMessage('Error: Please select a date.');
