@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { logger } from "hono/logger";
 import { fakeExpenses } from "./fakedb";
+import type { Expense } from "./fakedb";
 
 const app = new Hono();
 
@@ -13,7 +14,9 @@ export const expensesRoute = new Hono()
     return c.json({ expenses: fakeExpenses });
   })
   .post("/", async (c) => {
-    const expense = await c.req.json();
+    // const expense = await c.req.json();
+    const expense: Expense = await c.req.json();
+    expense.date = new Date(expense.date);
     console.log('New expense: ', expense);   
     expense.id = fakeExpenses.length + 1; 
     fakeExpenses.push(expense);
