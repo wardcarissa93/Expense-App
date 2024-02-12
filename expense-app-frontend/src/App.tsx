@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import dateFormat from "dateformat";
 import './App.css';
 
 type Expense = {
@@ -46,18 +47,25 @@ function App() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
+  
     if (name === 'amount' && isNaN(parseFloat(value))) {
       // If the entered value is not a valid number, don't update the state
       return;
     }
-
+  
+    let newValue: string | Date = value;
+  
+    if (name === 'date') {
+      // Parse the date string into a Date object
+      newValue = new Date(value);
+    }
+  
     setNewExpense((prevExpense) => ({
       ...prevExpense,
-      [name]: name === 'amount' ? value : value,
+      [name]: newValue,
     }));
   };
-
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmissionMessage('Submitting expense...'); // Display submission message
@@ -135,30 +143,50 @@ function App() {
         </div>
       ) : (
         <div>
-          <h2 className="text-center header">Expenses:</h2>
-          {expensesQuery.data?.expenses
-            .slice() // Access the 'expenses' array directly
-            .sort((a: Expense, b: Expense) => new Date(b.date).getTime() - new Date(a.date).getTime()) // Add type annotations
-            .map((expense: Expense) => ( // Add type annotation
-              <div key={expense.id} className="expense-item">
-                <div className="date-title"><p className='date'>{new Date(expense.date).toLocaleDateString("en-US")} - </p><p>{expense.title}:</p></div>
-                <div>${parseFloat(expense.amount).toFixed(2)}</div>
-              </div>
-            ))}
+          {expensesQuery.data?.expenses.length === 0 ? (
+            <p className="text-center">Enter your first expense below.</p>
+          ) : (
+            <div>
+            <h2 className="text-center header">Expenses:</h2>
+            {expensesQuery.data?.expenses
+              .slice()
+              .sort(
+                (a: Expense, b: Expense) =>
+                  new Date(b.date).getTime() - new Date(a.date).getTime()
+              )
+              .map((expense: Expense) => (
+                <div key={expense.id} className="expense-item">
+                  <div className="date-title">
+                    <p className="date">
+                      {dateFormat(expense.date, "mmm dS yyyy", true)} -{" "}
+                    </p>
+                    <p>{expense.title}:</p>
+                  </div>
+                  <div>${parseFloat(expense.amount).toFixed(2)}</div>
+                </div>
+              ))}
+            </div>
+
+          )}
         </div>
       )}
       <div className="line"></div>
-      {totalAmountQuery.error ? (
-        <div>{totalAmountQuery.error.message}</div>
-      ) : totalAmountQuery.isPending ? (
-        <div className="flex flex-col max-w-96 m-auto animate-pulse">
-          Loading Total Spent ...
-        </div>
-      ) : (
-        <div className="flex flex-col max-w-96 m-auto">
-          Total Spent: ${parseFloat(totalAmountQuery.data.total).toFixed(2)}
-        </div>
-      )}
+      <div className="flex flex-col max-w-96 m-auto">
+        {totalAmountQuery.error ? (
+          <div>{totalAmountQuery.error.message}</div>
+        ) : totalAmountQuery.isPending ? (
+          <div className="flex flex-col max-w-96 m-auto animate-pulse">
+            Loading Total Spent ...
+          </div>
+        ) : (
+          <div>
+            Total Spent: $
+            {totalAmountQuery.data?.total === null
+              ? "0.00"
+              : parseFloat(totalAmountQuery.data.total).toFixed(2)}
+          </div>
+        )}
+      </div>
       <div className="line"></div>
       <form onSubmit={handleSubmit}>
         <div className="form-input-div">
@@ -175,12 +203,12 @@ function App() {
         <div className="form-input-div">
           <label htmlFor="amount">Amount:</label>
           <input
-            type="text"  
+            type="text"
             name="amount"
             id="amount"
             value={newExpense.amount}
             onChange={handleInputChange}
-            className='form-input'
+            className="form-input"
           />
         </div>
         <div className="form-input-div">
@@ -189,9 +217,9 @@ function App() {
             type="date"
             name="date"
             id="date"
-            value={newExpense.date.toISOString().split('T')[0]} // Convert Date to string
+            value={newExpense.date.toISOString().substr(0, 10)} // Convert date to ISO string
             onChange={handleInputChange}
-            className='form-input'
+            className="form-input"
           />
         </div>
         <button type="submit" className="form-button">
@@ -200,7 +228,7 @@ function App() {
         {submissionMessage && <p>{submissionMessage}</p>}
       </form>
     </div>
-  );
+  );  
 }
 
 export default App;

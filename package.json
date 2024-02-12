@@ -9,12 +9,14 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/dateformat": "^5.0.2",
     "drizzle-kit": "0.20.12"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "dateformat": "^5.0.3",
     "drizzle-orm": "^0.29.3",
     "hono": "^3.12.10",
     "node": "^21.6.1",
