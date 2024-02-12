@@ -116,7 +116,7 @@ function App() {
 
     } catch (error) {
       // Display error message
-      setSubmissionMessage(`Error: ${error.message}`);
+      setSubmissionMessage(`Error: ${(error as Error).message}`);
     }
   };
 
@@ -135,9 +135,10 @@ function App() {
 
   return (
     <div className="w-screen h-screen bg-white dark:bg-black text-black dark:text-white">
-      {expensesQuery.error ? (
-        <div>{expensesQuery.error.message}</div>
-      ) : expensesQuery.isPending ? (
+      {((expensesQuery.error as Error | undefined)?.message) && (
+        <div>{(expensesQuery.error as Error).message}</div>
+      )}
+      {expensesQuery.isPending ? (
         <div className="flex flex-col max-w-96 m-auto animate-pulse">
           Loading Expenses ...
         </div>
@@ -147,34 +148,34 @@ function App() {
             <p className="text-center">Enter your first expense below.</p>
           ) : (
             <div>
-            <h2 className="text-center header">Expenses:</h2>
-            {expensesQuery.data?.expenses
-              .slice()
-              .sort(
-                (a: Expense, b: Expense) =>
-                  new Date(b.date).getTime() - new Date(a.date).getTime()
-              )
-              .map((expense: Expense) => (
-                <div key={expense.id} className="expense-item">
-                  <div className="date-title">
-                    <p className="date">
-                      {dateFormat(expense.date, "mmm dS yyyy", true)} -{" "}
-                    </p>
-                    <p>{expense.title}:</p>
+              <h2 className="text-center header">Expenses:</h2>
+              {expensesQuery.data?.expenses
+                .slice()
+                .sort(
+                  (a: Expense, b: Expense) =>
+                    new Date(b.date).getTime() - new Date(a.date).getTime()
+                )
+                .map((expense: Expense) => (
+                  <div key={expense.id} className="expense-item">
+                    <div className="date-title">
+                      <p className="date">
+                        {dateFormat(expense.date, "mmm dS yyyy", true)} -{" "}
+                      </p>
+                      <p>{expense.title}:</p>
+                    </div>
+                    <div>${parseFloat(expense.amount).toFixed(2)}</div>
                   </div>
-                  <div>${parseFloat(expense.amount).toFixed(2)}</div>
-                </div>
-              ))}
+                ))}
             </div>
-
           )}
         </div>
       )}
       <div className="line"></div>
       <div className="flex flex-col max-w-96 m-auto">
-        {totalAmountQuery.error ? (
-          <div>{totalAmountQuery.error.message}</div>
-        ) : totalAmountQuery.isPending ? (
+        {((totalAmountQuery.error as Error | undefined)?.message) && (
+          <div>{(totalAmountQuery.error as Error).message}</div>
+        )}
+        {totalAmountQuery.isPending ? (
           <div className="flex flex-col max-w-96 m-auto animate-pulse">
             Loading Total Spent ...
           </div>
