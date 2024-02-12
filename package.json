@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch server/index.ts",
-    "start": "bun server/index.ts"
+    "start": "bun server/index.ts",
+    "generate": "drizzle-kit generate:pg"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -16,6 +17,7 @@
   "dependencies": {
     "drizzle-orm": "^0.29.3",
     "hono": "^3.12.10",
+    "node": "^21.6.1",
     "postgres": "^3.4.3"
   }
 }

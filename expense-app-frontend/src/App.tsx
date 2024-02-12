@@ -127,18 +127,6 @@ function App() {
 
   return (
     <div className="w-screen h-screen bg-white dark:bg-black text-black dark:text-white">
-      {totalAmountQuery.error ? (
-        <div>{totalAmountQuery.error.message}</div>
-      ) : totalAmountQuery.isPending ? (
-        <div className="flex flex-col max-w-96 m-auto animate-pulse">
-          Loading Total Spent ...
-        </div>
-      ) : (
-        <div className="flex flex-col max-w-96 m-auto">
-          Total Spent: ${totalAmountQuery.data.total.toFixed(2)}
-        </div>
-      )}
-      <div className="line"></div>
       {expensesQuery.error ? (
         <div>{expensesQuery.error.message}</div>
       ) : expensesQuery.isPending ? (
@@ -147,21 +135,33 @@ function App() {
         </div>
       ) : (
         <div>
-          <h2 className="text-center">Expenses:</h2>
+          <h2 className="text-center header">Expenses:</h2>
           {expensesQuery.data?.expenses
             .slice() // Access the 'expenses' array directly
             .sort((a: Expense, b: Expense) => new Date(b.date).getTime() - new Date(a.date).getTime()) // Add type annotations
             .map((expense: Expense) => ( // Add type annotation
               <div key={expense.id} className="expense-item">
-                <div>{new Date(expense.date).toLocaleDateString("en-US")} - {expense.title}:</div>
+                <div className="date-title"><p className='date'>{new Date(expense.date).toLocaleDateString("en-US")} - </p><p>{expense.title}:</p></div>
                 <div>${parseFloat(expense.amount).toFixed(2)}</div>
               </div>
             ))}
         </div>
       )}
       <div className="line"></div>
+      {totalAmountQuery.error ? (
+        <div>{totalAmountQuery.error.message}</div>
+      ) : totalAmountQuery.isPending ? (
+        <div className="flex flex-col max-w-96 m-auto animate-pulse">
+          Loading Total Spent ...
+        </div>
+      ) : (
+        <div className="flex flex-col max-w-96 m-auto">
+          Total Spent: ${parseFloat(totalAmountQuery.data.total).toFixed(2)}
+        </div>
+      )}
+      <div className="line"></div>
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="form-input-div">
           <label htmlFor="title">Title:</label>
           <input
             type="text"
@@ -172,7 +172,7 @@ function App() {
             className="form-input"
           />
         </div>
-        <div>
+        <div className="form-input-div">
           <label htmlFor="amount">Amount:</label>
           <input
             type="text"  
@@ -183,7 +183,7 @@ function App() {
             className='form-input'
           />
         </div>
-        <div>
+        <div className="form-input-div">
           <label htmlFor="date">Date:</label>
           <input
             type="date"

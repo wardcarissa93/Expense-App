@@ -18,5 +18,3 @@ export const expenses = pgTable("expenses", {
     .notNull()
     .defaultNow(),
 });
-
-console.log("this is running");

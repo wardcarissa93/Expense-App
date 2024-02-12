@@ -5,8 +5,13 @@
   text-align: center;
 }
 
+.header {
+  font-size: 20px;
+}
+
 .line {
   width: 50%;
+  max-width: 450px;
   height: 3px;
   background-color: #cccccc;
   margin: 1rem auto;
@@ -15,34 +20,62 @@
 .expense-item {
   display: flex;
   width: 40%;
+  max-width: 360px;
   justify-content: space-between;
   margin: 0 auto;
+}
+
+.date-title {
+  display: flex;
+  column-gap: 3px;
+}
+
+.date {
+  display: none;
 }
 
 form {
   margin: 0 auto;
   width: 50%;
+  max-width: 450px;
 }
 
-form > div {
+.form-input-div {
   display: flex;
-  justify-content: space-between;
-  margin: 0.5rem auto;
+  flex-direction: column;
 }
 
 .form-input {
   border: 1px solid black;
   padding-left: 0.25rem;
-  width: 60%;
+  width: 100%;
 }
 
 .form-button {
   border: 2px solid black;
   padding: 0.25rem 0.5rem;
   border-radius: 10px;
-  margin-bottom: 1rem;
+  margin: 0.5rem;
 }
 
 .form-button:hover {
   background-color: aquamarine;
+}
+
+@media (min-width: 540px) {
+  .date {
+    display: flex;
+  }
+
+  .form-input-div {
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0.5rem auto;
+  }
+
+  .form-input {
+    border: 1px solid black;
+    padding-left: 0.25rem;
+    width: 60%;
+  }
 }
